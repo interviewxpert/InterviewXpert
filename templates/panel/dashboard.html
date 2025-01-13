@@ -1,0 +1,55 @@
+{% extends "panel/base.html" %} {% block title %} Interview Simulation {% endblock %} 
+{% block content %}
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <span class="navbar-brand">Welcome, {{ user_name }}!</span>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/notifications"><i class="fas fa-bell me-1"></i>Notifications</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/help"><i class="fas fa-question-circle me-1"></i>Help</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <div class="container mt-4">
+                <h1>Dashboard</h1>
+                <p>This is your dashboard. Here you can navigate through your app's features and manage your tasks.</p>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Profile</h5>
+                                <p class="card-text">Update your personal information and manage your account.</p>
+                                <a href="/profile" class="btn btn-primary">Go to Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Simulation</h5>
+                                <p class="card-text">Start a virtual interview simulation and get AI-driven feedback.</p>
+                                <a href="/simulation" class="btn btn-primary">Start Simulation</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Analytics</h5>
+                                <p class="card-text">View your performance statistics and insights.</p>
+                                <a href="/analytics" class="btn btn-primary">View Analytics</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

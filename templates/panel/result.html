@@ -1,0 +1,31 @@
+{% extends "panel/base.html" %} {% block title %} Interview Result {% endblock %} 
+{% block content %}
+<!-- Main Content -->
+<div class="flex-grow-1">
+<h1>Interview Progress</h1>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Question</th>
+            <th>Answer</th>
+            <th>Grade</th>
+            <th>Remarks</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <!-- Allow text to wrap with line breaks -->
+            <td style="white-space: normal; word-wrap: break-word; max-width: 800px;">
+                {{ log['question'] }}
+            </td>
+            <td>{{ log['answer'] }}</td>
+            <td>{{ log['grade'] }}</td>
+            <td>{{ log['remarks'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</table>
+</div>
+{% endblock %}

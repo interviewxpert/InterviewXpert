@@ -55,7 +55,12 @@ class VoiceManager {
         };
         utterance.onend = () => {
             console.log('Speech has ended');
-            $('#startVoiceBtn').show();
+            if($('.interview_method').val() == "voice"){
+                $('#startVoiceBtn').show();
+            } else if($('.interview_method').val() == "text"){
+                $('#textAnswer').show();
+                $('#submitAnswerBtn').show();
+            }
         };
         this.speechSynthesis.speak(utterance);
     }
@@ -118,6 +123,7 @@ $(document).ready(function () {
         const field = $('#interviewField').val();
         const length = $('#interviewLength').val();
         const feedbackFocus = $('#interviewFeedback').val();
+        const interviewMethod = $('#interviewMethod:checked').val();
 
         $.ajax({
             url: '/api/save-settings',
@@ -128,7 +134,8 @@ $(document).ready(function () {
                 difficulty,
                 field,
                 length,
-                feedbackFocus
+                feedbackFocus,
+                interviewMethod
             }),
             success: function (response) {
                 if (response.success) {
@@ -178,6 +185,38 @@ $(document).ready(function () {
                 console.error("Failed to fetch the report.");
             }
             $('#startVoiceBtn').prop('disabled', true);
+        }
+    });
+
+    $('#textAnswer').on('input', function() {
+        var answer = $(this).val();
+        if (answer.length > 0) {
+            $('#submitAnswerBtn').css('opacity', 1);
+            $('#submitAnswerBtn').prop('disabled', false);
+        } else {
+            $('#submitAnswerBtn').css('opacity', 0.5);
+            $('#submitAnswerBtn').prop('disabled', true);
+        }
+    });    
+
+    $('#submitAnswerBtn').click(async function() { 
+        var textAnswer = $('#textAnswer').val()
+        $('#userAnswer').attr('data-user-answer', textAnswer);
+        
+        if(textAnswer){
+            question = $('#aiQuestion').text();
+            answer = $('#userAnswer').attr('data-user-answer');
+            report = await getAnswers(answer, question);
+            if (report) {
+                logQuestion(question, answer, report);
+                console.log("Updated Log:", simulationQuestionsLog);
+                $('#submitAnswerBtn').css('opacity', 0.5);
+                $('#submitAnswerBtn').prop('disabled', true);
+                $('#nextQuestion').show();
+                compareLength();
+            } else {
+                console.error("Failed to fetch the report.");
+            }
         }
     });
 
@@ -297,8 +336,6 @@ function initiliazeInterview() {
         console.error('Error accessing media devices:', error);
         alert('You need to grant access to the camera and microphone for the interview.');
     });
-
-    const question = "What is your experience with Python?";
     
     console.log("Interview started.");
 }

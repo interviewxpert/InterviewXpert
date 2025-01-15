@@ -7,6 +7,7 @@ from flask_mysqldb import MySQL
 import google.generativeai as genai
 import openai
 import constants as c
+import MySQLdb
 
 app = Flask(__name__)
 
@@ -121,7 +122,15 @@ def dashboard():
 # Interview Simulator
 @app.route('/simulation', methods=['GET'])
 def simulation():
-    return render_template('panel/simulation.html')
+    if 'user_id' in session:
+        user_id = session['user_id']
+        table_name = f"{TABLE_PREFIX}interview_settings"
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute(f"SELECT * FROM {table_name} WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        return render_template('panel/simulation.html', result=result)
+    flash("You need to log in first.", "warning")
+    return redirect(url_for('login'))
     
 @app.route('/api/save-settings', methods=['POST'])
 def save_settings():
@@ -132,6 +141,7 @@ def save_settings():
     field = data.get('field')
     length = data.get('length')
     feedback_focus = data.get('feedbackFocus')
+    interview_method = data.get('interviewMethod')
 
     # Define table name with prefix
     table_name = f"{TABLE_PREFIX}interview_settings"
@@ -146,20 +156,22 @@ def save_settings():
             field VARCHAR(255) NOT NULL,
             length INT NOT NULL,
             feedback_focus VARCHAR(255) NOT NULL,
+            interview_method VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )
     """
 
     update_or_insert_sql = f"""
-        INSERT INTO {table_name} (user_id, interview_type, difficulty, field, length, feedback_focus)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO {table_name} (user_id, interview_type, difficulty, field, length, feedback_focus, interview_method)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE 
             interview_type = VALUES(interview_type), 
             difficulty = VALUES(difficulty), 
             field = VALUES(field), 
             length = VALUES(length), 
-            feedback_focus = VALUES(feedback_focus)
+            feedback_focus = VALUES(feedback_focus),
+            interview_method = VALUES(interview_method)
     """
 
     try:
@@ -169,7 +181,7 @@ def save_settings():
         if not user_id:
             return jsonify({'error': 'User not logged in'}), 403
         
-        cursor.execute(update_or_insert_sql, (user_id, interview_type, difficulty, field, length, feedback_focus))
+        cursor.execute(update_or_insert_sql, (user_id, interview_type, difficulty, field, length, feedback_focus, interview_method))
         
         mysql.connection.commit()
     except Exception as e:
